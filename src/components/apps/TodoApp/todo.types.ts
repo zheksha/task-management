@@ -1,8 +1,9 @@
 export enum Category {
-  Personal = 'Personall',
+  Personal = 'Personal',
   Work = 'Work',
   School = 'School',
   Other = 'Other',
+  MoreStuff = 'MoreStuff',
 }
 
 export type FilterType = 'all' | 'active' | 'completed'

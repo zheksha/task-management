@@ -1,3 +1,4 @@
+import React, { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,48 +9,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import React from 'react'
 import TodoItem from './TodoItem'
 import type { FilterType, ITodo } from './todo.types'
 import { Category } from './todo.types'
+import { mockTodos } from './todo.mock'
 
 const TodoApp: React.FC = () => {
-  const filterButtons: { value: FilterType; label: string }[] = [
+  const [todos, setTodos] = useState<ITodo[]>(mockTodos)
+  const [newTodo, setNewTodo] = useState<string>('')
+  const [category, setCategory] = useState<Category>(Category.Other)
+  const [filter, setFilter] = useState<FilterType>('all')
+
+  interface IKeyLabel<T> {
+    value: T
+    label: string
+  }
+
+  const filterButtons: IKeyLabel<FilterType>[] = [
     { value: 'all', label: 'All' },
     { value: 'active', label: 'Active' },
     { value: 'completed', label: 'Completed' },
   ]
 
-  const categories: { value: Category; label: string }[] = [
-    { value: Category.Personal, label: 'Personal' },
-    { value: Category.Work, label: 'Work' },
-    { value: Category.School, label: 'School' },
-    { value: Category.Other, label: 'Other' },
-  ]
+  const categories: IKeyLabel<Category>[] = Object.entries(Category).map(
+    ([key, value]) => ({
+      value: key as Category, // type casting
+      label: value,
+    })
+  )
 
-  const todos: ITodo[] = [
-    {
-      id: 1,
-      text: 'Learn React',
-      completed: false,
-      category: Category.Personal,
-      createdAt: new Date(),
-    },
-    {
-      id: 2,
-      text: 'Learn Next.js',
-      completed: true,
-      category: Category.Work,
-      createdAt: new Date(),
-    },
-    {
-      id: 3,
-      text: 'Learn Node.js',
-      completed: false,
-      category: Category.School,
-      createdAt: new Date(),
-    },
-  ]
+  const addTodo = (e: FormEvent): void => {
+    e.preventDefault()
+    if (newTodo.trim()) {
+      setTodos([
+        ...todos,
+        {
+          id: Date.now(),
+          text: newTodo,
+          completed: false,
+          category,
+          createdAt: new Date(),
+        },
+      ])
+      setNewTodo('')
+      setCategory(Category.Other)
+    }
+  }
+
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === 'completed') return todo.completed
+    if (filter === 'active') return !todo.completed
+    return true
+  })
+
+  const toggleTodo = (id: number) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    )
+  }
+
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter((todo) => todo.id !== id))
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -59,9 +82,17 @@ const TodoApp: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={() => {}} className="flex gap-2 mb-6">
-          <Input className="flex-grow" placeholder="Add a new todo..." />
-          <Select>
+        <form onSubmit={addTodo} className="flex gap-2 mb-6">
+          <Input
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            className="flex-grow"
+            placeholder="Add a new todo..."
+          />
+          <Select
+            value={category}
+            onValueChange={(value: Category) => setCategory(value)}
+          >
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
@@ -79,16 +110,41 @@ const TodoApp: React.FC = () => {
         {/* Filters* */}
         <div className="flex gap-2 mb-6">
           {filterButtons.map((btn) => (
-            <Button key={btn.value} size="sm">
+            <Button
+              key={btn.value}
+              size="sm"
+              onClick={() => setFilter(btn.value)}
+              variant={filter === btn.value ? 'default' : 'outline'}
+            >
               {btn.label}
             </Button>
           ))}
         </div>
 
         {/* Todos */}
-        {todos.map((todo) => {
-          return <TodoItem key={todo.id} todo={todo} />
+        {filteredTodos.map((todo) => {
+          return (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={toggleTodo}
+              onDelete={deleteTodo}
+            />
+          )
         })}
+
+        {filteredTodos.length === 0 && (
+          <div className="mt-4 text-center text-sm text-gray-500 py-5">
+            No todos found. Please add some tasks to get started!
+          </div>
+        )}
+
+        {todos.length > 0 && (
+          <div className="mt-4 text-right text-sm text-gray-500 py-5">
+            {todos.filter((todo) => !todo.completed).length} items left to
+            complete
+          </div>
+        )}
       </CardContent>
     </Card>
   )
