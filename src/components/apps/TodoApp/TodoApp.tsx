@@ -135,7 +135,7 @@ const TodoApp: React.FC = () => {
 
         {filteredTodos.length === 0 && (
           <div className="mt-4 text-center text-sm text-gray-500 py-5">
-            No todos found. Please add some tasks to get started!
+            Ooops!
           </div>
         )}
 
