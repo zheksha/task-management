@@ -142,7 +142,7 @@ const TodoApp: React.FC = () => {
         {todos.length > 0 && (
           <div className="mt-4 text-right text-sm text-gray-500 py-5">
             {todos.filter((todo) => !todo.completed).length} items left to
-            complete
+            complete the list
           </div>
         )}
       </CardContent>
