@@ -46,7 +46,7 @@ const TodoApp: React.FC = () => {
         {
           id: Date.now(),
           text: newTodo,
-          completed: false,
+          completed: !false,
           category,
           createdAt: new Date(),
         },
@@ -135,7 +135,7 @@ const TodoApp: React.FC = () => {
 
         {filteredTodos.length === 0 && (
           <div className="mt-4 text-center text-sm text-gray-500 py-5">
-            Ooops!
+            No todos found. Please add some tasks to get started!
           </div>
         )}
 
