@@ -74,6 +74,8 @@ const TodoApp: React.FC = () => {
     setTodos(todos.filter((todo) => todo.id !== id))
   }
 
+  UlanUtils.myCustomLog('message')
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
